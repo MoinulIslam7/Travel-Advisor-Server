@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 // middle wares
@@ -12,14 +12,16 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.0tydy0p.mongodb.net/?retryWrites=true&w=majority`;
 
-console.log(uri)
-
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
 async function run() {
     try {
+        // service collection
         const serviceCollection = client.db('serviceReview').collection('services');
+
+        // Review collection
+        const reviewCollection = client.db('serviceReview').collection('reviews');
 
         app.get('/services', async (req, res) => {
             const query = {};
@@ -33,6 +35,27 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         });
+
+        app.get('/serviceDetails/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const service = await serviceCollection.findOne(query);
+            res.send(service);
+        });
+
+
+        // reviews api
+        app.post('/reviews', async (req, res) =>{
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        })
+        // app.get('/reviews/:id', async (req, res) =>{
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const reviews = await reviewCollection.find(query);
+        //     res.send(reviews);
+        // })
     }
     finally {
 
