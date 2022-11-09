@@ -20,6 +20,19 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const serviceCollection = client.db('serviceReview').collection('services');
+
+        app.get('/services', async (req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query);
+            const services = await cursor.limit(3).toArray();
+            res.send(services);
+        });
+        app.get('/AllServices', async (req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query);
+            const services = await cursor.toArray();
+            res.send(services);
+        });
     }
     finally {
 
@@ -31,8 +44,8 @@ run().catch(error => console.error(error));
 
 app.get('/', (req, res) => {
     res.send('Travel advisor server is running')
-  })
-  
-  app.listen(port, () => {
+})
+
+app.listen(port, () => {
     console.log(`Travel advisor server running on ${port}`);
-  })
+})
