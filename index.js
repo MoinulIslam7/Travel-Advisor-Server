@@ -25,8 +25,10 @@ function verifyJWT(req, res, next){
         if(err){
             res.status(401).send({message: 'Unauthorized access'})
         }
+        req.decoded = decoded;
+        next()
     })
-    next()
+    
 }
 
 
