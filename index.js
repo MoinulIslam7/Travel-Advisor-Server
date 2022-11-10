@@ -109,16 +109,19 @@ async function run() {
             const result = await reviewCollection.deleteOne(query);
             res.send(result);
         });
-        app.patch('/reviews/:id', async (req, res) => {
+        app.put('/reviews/:id', async (req, res) => {
             const id = req.params.id;
-            const status = req.body.status;
             const query = { _id: ObjectId(id) }
+            const status = req.body;
+            const options = {upsert:true};
+
             const edit = {
                 $set: {
-                    status: status
+                    ratings: status.ratings,
+                    message: status.message
                 }
             }
-            const result = await reviewCollection.updateOne(query, edit);
+            const result = await reviewCollection.updateOne(query, edit, options);
             res.send(result);
         });
         // jwt
